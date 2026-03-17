@@ -12,7 +12,6 @@ const [search,setSearch] = useState("");
 const userId = localStorage.getItem("userId");
 
 
-// Load Events
 useEffect(()=>{
 
 API.get("/events")
@@ -21,7 +20,6 @@ API.get("/events")
 },[]);
 
 
-// Load User Registrations
 useEffect(()=>{
 
 API.get(`/registrations/user/${userId}`)
@@ -35,7 +33,7 @@ setRegistered(ids);
 },[userId]);
 
 
-// Register Event
+
 const registerEvent = async(eventId)=>{
 
 try{
@@ -47,7 +45,7 @@ eventId:eventId
 
 message.success("Registered successfully");
 
-// update UI instantly
+
 setRegistered([...registered,eventId]);
 
 }catch{
@@ -59,7 +57,7 @@ message.error("You already registered for this event");
 };
 
 
-// Search Filter
+
 const filteredEvents = events.filter(e =>
 e.eventName.toLowerCase().includes(search.toLowerCase())
 );
@@ -74,11 +72,11 @@ return(
 <div className="max-w-7xl mx-auto p-8">
 
 <h2 className="text-3xl font-bold text-gray-800 mb-6">
-🎉 Explore Events
+ Explore Events
 </h2>
 
 
-{/* Search Box */}
+
 
 <input
 className="border border-gray-300 p-3 rounded-lg w-full max-w-md mb-8 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -87,7 +85,6 @@ onChange={(e)=>setSearch(e.target.value)}
 />
 
 
-{/* Events Grid */}
 
 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
@@ -121,7 +118,7 @@ className="bg-white rounded-xl shadow-md hover:shadow-xl transition p-6"
 </div>
 
 
-{/* Button */}
+
 
 {registered.includes(event.eventId) ? (
 

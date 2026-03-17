@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import API from "../api/api";
+import { message } from "antd";
+import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 
 function Login() {
 
@@ -8,33 +10,31 @@ function Login() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
 
   const validate = () => {
     let newErrors = {};
 
-    // Email validation
     if (!email) {
       newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(email)) {
       newErrors.email = "Invalid email format";
+      message.error("Invalid email format ");
     }
 
-    // Password validation
     if (!password) {
       newErrors.password = "Password is required";
+      message.error("Password is required ");
     }
 
     setErrors(newErrors);
-
     return Object.keys(newErrors).length === 0;
   };
 
   const login = async (e) => {
     e.preventDefault();
 
-    // Validate before API call
     if (!validate()) return;
 
     try {
@@ -42,6 +42,8 @@ function Login() {
 
       localStorage.setItem("userId", res.data.userId);
       localStorage.setItem("role", res.data.role);
+
+      message.success("Login successful ");
 
       const role = res.data.role?.toUpperCase();
 
@@ -51,8 +53,17 @@ function Login() {
         navigate("/events");
       }
 
-    } catch {
-      alert("Login failed");
+    } catch (err) {
+
+      const errorMsg = err.response?.data;
+
+      if (errorMsg?.includes("User not found")) {
+        message.error("Invalid email ");
+      } else if (errorMsg?.includes("Invalid password")) {
+        message.error("Invalid password ");
+      } else {
+        message.error("Login failed ");
+      }
     }
   };
 
@@ -67,6 +78,7 @@ function Login() {
 
         <form onSubmit={login}>
 
+         
           <input
             className="border p-2 w-full mb-1"
             placeholder="Email"
@@ -77,13 +89,24 @@ function Login() {
             <p className="text-red-500 text-sm mb-2">{errors.email}</p>
           )}
 
-          <input
-            type="password"
-            className="border p-2 w-full mb-1"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+      
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              className="border p-2 w-full mb-1 pr-10"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+
+            <span
+              className="absolute right-3 top-3 cursor-pointer"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <EyeTwoTone /> : <EyeInvisibleOutlined />}
+            </span>
+          </div>
+
           {errors.password && (
             <p className="text-red-500 text-sm mb-2">{errors.password}</p>
           )}

@@ -1,50 +1,63 @@
 import { Link, useNavigate } from "react-router-dom";
+import { Modal } from "antd";
 
 function Navbar() {
 
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
-const role = localStorage.getItem("role");
+  const role = localStorage.getItem("role");
 
-const logout = () => {
+  const logout = () => {
 
-localStorage.removeItem("userId");
-localStorage.removeItem("role");
+    Modal.confirm({
+      title: "Are you sure you want to logout?",
+      content: "You will be redirected to login page.",
+      okText: "Yes",
+      cancelText: "No",
+      onOk() {
+        localStorage.removeItem("userId");
+        localStorage.removeItem("role");
 
-navigate("/");
+        navigate("/");
+      }
+    });
 
-};
+  };
 
-return(
+  return (
+    <div className="bg-blue-600 text-white p-4 flex justify-between items-center">
 
-<div className="bg-blue-600 text-white p-4 flex justify-between">
+      <h1 className="font-bold text-lg">
+        Event System
+      </h1>
 
-<h1 className="font-bold text-lg">
-Event System
-</h1>
+      <div className="space-x-4 flex items-center">
 
-<div className="space-x-4">
+        <Link to="/events" className="hover:underline">
+          Events
+        </Link>
 
-<Link to="/events">Events</Link>
+        <Link to="/my-events" className="hover:underline">
+          My Events
+        </Link>
 
-<Link to="/my-events">My Events</Link>
+        {role === "ADMIN" && (
+          <Link to="/admin" className="hover:underline">
+            Admin
+          </Link>
+        )}
 
-{role === "ADMIN" && (
-<Link to="/admin">Admin</Link>
-)}
+        <button
+          className="bg-red-500 hover:bg-red-600 px-3 py-1 rounded"
+          onClick={logout}
+        >
+          Logout
+        </button>
 
-<button
-className="bg-red-500 px-2 py-1 rounded"
-onClick={logout}
->
-Logout
-</button>
+      </div>
 
-</div>
-
-</div>
-
-);
+    </div>
+  );
 
 }
 

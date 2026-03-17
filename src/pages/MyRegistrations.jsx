@@ -1,143 +1,141 @@
-
 import { useEffect, useState } from "react";
 import API from "../api/api";
 import Navbar from "../components/Navbar";
-import { message } from "antd";
+import { message, Popconfirm } from "antd";
 
 function MyEvents(){
 
-const [registrations,setRegistrations] = useState([]);
-const [events,setEvents] = useState([]);
+  const [registrations,setRegistrations] = useState([]);
+  const [events,setEvents] = useState([]);
 
-const userId = localStorage.getItem("userId");
-
-
-// Load user registrations
-useEffect(()=>{
-
-API.get(`/registrations/user/${userId}`)
-.then(res=>setRegistrations(res.data));
-
-},[userId]);
+  const userId = localStorage.getItem("userId");
 
 
-// Load events
-useEffect(()=>{
+  useEffect(()=>{
 
-API.get("/events")
-.then(res=>setEvents(res.data));
+    API.get(`/registrations/user/${userId}`)
+    .then(res=>setRegistrations(res.data));
 
-},[]);
+  },[userId]);
 
+  useEffect(()=>{
 
-// Cancel registration
-const cancelRegistration = async(id)=>{
+    API.get("/events")
+    .then(res=>setEvents(res.data));
 
-try{
-
-await API.delete(`/registrations/${id}`);
-
-message.success("Registration cancelled");
-
-setRegistrations(
-registrations.filter(r => r.registrationId !== id)
-);
-
-}catch{
-
-message.error("Cancel failed");
-
-}
-
-};
+  },[]);
 
 
-// find event details
-const getEvent = (eventId) => {
-return events.find(e => e.eventId === eventId);
-};
+  const cancelRegistration = async(id)=>{
 
+    try{
 
-return(
+      await API.delete(`/registrations/${id}`);
 
-<div className="min-h-screen bg-gray-100">
+      message.success("Registration cancelled successfully ");
 
-<Navbar/>
+      setRegistrations(
+        registrations.filter(r => r.registrationId !== id)
+      );
 
-<div className="max-w-6xl mx-auto p-8">
+    }catch{
 
-<h2 className="text-3xl font-bold text-gray-800 mb-6">
-🎟 My Registered Events
-</h2>
+      message.error("Cancel failed ");
 
+    }
 
-{registrations.length === 0 && (
+  };
 
-<p className="text-gray-500">
-You have not registered for any events.
-</p>
+  // Find event details
+  const getEvent = (eventId) => {
+    return events.find(e => e.eventId === eventId);
+  };
 
-)}
+  return(
 
+    <div className="min-h-screen bg-gray-100">
 
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <Navbar/>
 
-{registrations.map(reg => {
+      <div className="max-w-6xl mx-auto p-8">
 
-const event = getEvent(reg.eventId);
+        <h2 className="text-3xl font-bold text-gray-800 mb-6">
+          My Registered Events
+        </h2>
 
-if(!event) return null;
+        {registrations.length === 0 && (
 
-return(
+          <p className="text-gray-500">
+            You have not registered for any events.
+          </p>
 
-<div
-key={reg.registrationId}
-className="bg-white rounded-xl shadow-md hover:shadow-xl transition p-6"
->
+        )}
 
-<h3 className="text-xl font-semibold text-blue-700">
-{event.eventName}
-</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-<p className="text-gray-600 mt-2">
-{event.description}
-</p>
+          {registrations.map(reg => {
 
-<div className="mt-3 text-sm text-gray-500 space-y-1">
+            const event = getEvent(reg.eventId);
 
-<p>📍 {event.location}</p>
+            if(!event) return null;
 
-{event.eventDate && (
-<p>📅 {event.eventDate}</p>
-)}
+            return(
 
-{event.organizer && (
-<p>👤 {event.organizer}</p>
-)}
+              <div
+                key={reg.registrationId}
+                className="bg-white rounded-xl shadow-md hover:shadow-xl transition p-6"
+              >
 
-</div>
+                <h3 className="text-xl font-semibold text-blue-700">
+                  {event.eventName}
+                </h3>
 
+                <p className="text-gray-600 mt-2">
+                  {event.description}
+                </p>
 
-<button
-className="mt-4 w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg transition"
-onClick={()=>cancelRegistration(reg.registrationId)}
->
-Cancel Registration
-</button>
+                <div className="mt-3 text-sm text-gray-500 space-y-1">
 
-</div>
+                  <p>📍 {event.location}</p>
 
-);
+                  {event.eventDate && (
+                    <p>📅 {event.eventDate}</p>
+                  )}
 
-})}
+                  {event.organizer && (
+                    <p>👤 {event.organizer}</p>
+                  )}
 
-</div>
+                </div>
 
-</div>
+               
+                <Popconfirm
+                  title="Cancel Registration?"
+                  description="Are you sure you want to cancel this registration?"
+                  onConfirm={()=>cancelRegistration(reg.registrationId)}
+                  okText="Yes"
+                  cancelText="No"
+                >
+                  <button
+                    className="mt-4 w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg transition"
+                  >
+                    Cancel Registration
+                  </button>
+                </Popconfirm>
 
-</div>
+              </div>
 
-);
+            );
+
+          })}
+
+        </div>
+
+      </div>
+
+    </div>
+
+  );
 
 }
 

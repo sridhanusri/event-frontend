@@ -10,14 +10,20 @@ function Register() {
     try {
       await API.post("/auth/register", values);
 
-      // ✅ Success toast
-      message.success("Registered Successfully");
-
+      message.success("Registered Successfully ");
       navigate("/");
+
     } catch (err) {
 
-      // ✅ Error toast
-      message.error("Registration failed");
+      const errorMsg = err.response?.data?.message;
+
+      if (errorMsg?.includes("User already exists")) {
+        message.error("User already registered ❌");
+      } else if (errorMsg?.includes("Phone already")) {
+        message.error("Phone number already used ❌");
+      } else {
+        message.error("Registration failed ❌");
+      }
     }
   };
 
@@ -28,6 +34,7 @@ function Register() {
 
         <Form layout="vertical" onFinish={onFinish}>
 
+          {/* Name */}
           <Form.Item
             label="Name"
             name="name"
@@ -36,6 +43,7 @@ function Register() {
             <Input placeholder="Enter name" />
           </Form.Item>
 
+          {/* Email */}
           <Form.Item
             label="Email"
             name="email"
@@ -47,17 +55,29 @@ function Register() {
             <Input placeholder="Enter email" />
           </Form.Item>
 
+          {/* Phone (ONLY 10 DIGITS) */}
           <Form.Item
             label="Phone"
             name="phone"
             rules={[
               { required: true, message: "Please enter phone number" },
-              { pattern: /^[0-9]{10}$/, message: "Phone must be 10 digits" }
+              {
+                pattern: /^[0-9]{10}$/,
+                message: "Phone number must be exactly 10 digits"
+              }
             ]}
           >
-            <Input placeholder="Enter phone" />
+            <Input
+              placeholder="Enter phone number"
+              maxLength={10}
+              onInput={(e) => {
+                // allow only numbers
+                e.target.value = e.target.value.replace(/[^0-9]/g, "");
+              }}
+            />
           </Form.Item>
 
+          {/* Password */}
           <Form.Item
             label="Password"
             name="password"
@@ -69,6 +89,7 @@ function Register() {
             <Input.Password placeholder="Enter password" />
           </Form.Item>
 
+          {/* Submit */}
           <Button type="primary" htmlType="submit" block>
             Register
           </Button>
